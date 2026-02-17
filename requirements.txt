@@ -1,0 +1,11 @@
+langchain
+langchain-groq
+duckduckgo-search
+langchain-community
+python-dotenv
+streamlit
+tinydb
+bcrypt
+pymongo
+dnspython
+pydantic
