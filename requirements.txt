@@ -6,6 +6,4 @@ python-dotenv
 streamlit
 tinydb
 bcrypt
-pymongo
-dnspython
 pydantic
