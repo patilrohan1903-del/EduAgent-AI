@@ -7,6 +7,7 @@ import database
 import ast
 from dotenv import load_dotenv
 from education_agent.agents.orchestrator import Orchestrator
+import streamlit.components.v1 as components
 
 # Load environment variables
 load_dotenv()
@@ -238,6 +239,21 @@ with main_container:
                 <p style="font-size: 1.2rem; color: #888;">Ask anything. Get a full course.</p>
             </div>
         """, unsafe_allow_html=True)
+    # --- 3D Spline Hero Section ---
+    components.html(
+        """
+        <div style="display:flex; justify-content:center; margin-bottom:40px;">
+            <iframe 
+                src="https://prod.spline.design/aEzKFODUER5JwxCe/scene.splinecode?embed"
+                frameborder="0"
+                width="100%"
+                height="500px"
+                style="border-radius:20px; max-width:1000px;">
+            </iframe>
+        </div>
+        """,
+        height=520,
+    )
 
     # --- Helper: Render Content ---
     def render_content(content):
