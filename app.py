@@ -303,6 +303,24 @@ def inject_custom_style():
 # Apply UI styles
 inject_custom_style()
 
+# --- Auth Logic (If Limit Reached or Manual Login) ---
+if "force_login" not in st.session_state:
+    st.session_state.force_login = False
+if "show_profile" not in st.session_state:
+    st.session_state.show_profile = False
+
+LIMIT_REACHED = (not st.session_state.logged_in) and (st.session_state.guest_chat_count >= 5)
+
+if LIMIT_REACHED or st.session_state.force_login:
+    # Render the new premium Auth UI
+    auth_ui.render_auth_page()
+    
+    if st.button("Back to Guest Mode", use_container_width=False):
+        st.session_state.force_login = False
+        st.rerun()
+        
+    st.stop() # Stop execution if limit reached or manual login requested
+
 # --- Sidebar ---
 with st.sidebar:
     st.markdown("<h2 style='text-align: center;'>📚</h2>", unsafe_allow_html=True)
@@ -359,26 +377,6 @@ with st.sidebar:
             st.caption("No history yet.")
     
     st.markdown("---")
-    
-
-
-# --- Auth Logic (If Limit Reached or Manual Login) ---
-if "force_login" not in st.session_state:
-    st.session_state.force_login = False
-if "show_profile" not in st.session_state:
-    st.session_state.show_profile = False
-
-LIMIT_REACHED = (not st.session_state.logged_in) and (st.session_state.guest_chat_count >= 5)
-
-if LIMIT_REACHED or st.session_state.force_login:
-    # Render the new premium Auth UI
-    auth_ui.render_auth_page()
-    
-    if st.button("Back to Guest Mode", use_container_width=False):
-        st.session_state.force_login = False
-        st.rerun()
-        
-    st.stop() # Stop execution if limit reached or manual login requested
 
 
 # --- Profile View ---
