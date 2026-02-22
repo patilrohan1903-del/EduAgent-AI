@@ -1,6 +1,5 @@
 import os
 from dotenv import load_dotenv
-from education_agent.tools import video_search
 from education_agent.agents import quiz_generator
 from langchain_groq import ChatGroq
 # Assuming we will use a simple synchronous orchestration for now
@@ -33,9 +32,9 @@ class Orchestrator:
         print(f"--- [ORCHESTRATOR] Writing Content ---")
         article = self.writer_chain.invoke({"research_data": research_output})
         
-        # 4. Fetch Multimedia (Videos)
-        print(f"--- [ORCHESTRATOR] Fetching Videos ---")
-        videos = video_search.get_youtube_links(topic)
+        # 4. Multimedia (Videos) - REMOVED
+        print(f"--- [ORCHESTRATOR] Multimedia (Videos) Removed ---")
+        videos = []
         
         # 5. Generate Quiz
         print(f"--- [ORCHESTRATOR] Generating Quiz ---")
@@ -51,11 +50,7 @@ class Orchestrator:
         print(f"📘 COURSE GENERATED: {topic.upper()}")
         print("="*60 + "\n")
         print(article)
-        print("\n" + "-"*60)
-        print(f"🎥 VIDEOS: {len(videos)} found")
-        print("-"*60)
-        for v in videos:
-            print(f"▶ {v['title']} ({v['link']})")
+        print(f"--- [ORCHESTRATOR] Videos: REMOVED ---")
         print("\n" + "-"*60)
         print("🧠 QUIZ")
         print("-"*60)

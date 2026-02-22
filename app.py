@@ -424,15 +424,8 @@ with main_container:
             st.markdown(content.get('article', ''))
             st.markdown("---")
             
-            # 2. Videos
-            videos = content.get('videos', [])
-            if videos:
-                st.markdown("### 🎥 Supplementary Videos")
-                cols = st.columns(min(3, len(videos)))
-                for i, vid in enumerate(videos):
-                    with cols[i]:
-                        st.video(vid['link'])
-                        st.caption(vid['title'])
+            # 2. Videos - REMOVED
+            pass
             
             # 3. Quiz
             quiz = content.get('quiz')
