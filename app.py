@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import os
 import time
 import auth
@@ -31,105 +32,115 @@ if "messages" not in st.session_state:
 if "auth_mode" not in st.session_state:
     st.session_state.auth_mode = "Login" # Login, Signup, Forgot
 
-# --- Custom CSS for Premium Black Design ---
-st.markdown("""
-<style>
-    /* 1. Global Background - Pure Black */
-    .stApp {
-        background-color: #000000;
-        color: #ffffff;
-        font-family: 'Georgia', serif;
-    }
-
-    /* 2. Glassmorphism Containers */
-    .glass-card {
-        background: rgba(20, 20, 20, 0.85);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        padding: 2.5rem;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        margin-bottom: 2rem;
-    }
-
-    /* 3. Typography */
-    h1, h2, h3, h4, h5, h6 {
-        color: #f8fafc;
-        font-family: 'Inter', sans-serif;
-        letter-spacing: -0.5px;
-    }
-    
-    p, li, .stMarkdown {
-        color: #cbd5e1;
-        line-height: 1.7;
-        font-size: 1.05rem;
-    }
-    
-    /* 4. Chat Input Styling - Constrained Width */
-    .stChatInput {
-        max-width: 700px;
-        margin: 0 auto;
-        left: 0;
-        right: 0;
-        bottom: 2rem !important; /* Move up slightly */
-    }
-    
-    /* 5. Center Content */
-    .main-content {
-        max-width: 800px;
-        margin: 0 auto;
-        padding-bottom: 100px; /* Space for chat input */
-    }
-
-    /* 6. Sidebar */
-    [data-testid="stSidebar"] {
-        background-color: #050505;
-        border-right: 1px solid #1a1a1a;
-    }
-    
-    /* 7. Progress Bar */
-    .stProgress > div > div > div > div {
-        background-color: #3b82f6;
-    }
-
-    /* Remove extra top padding */
-    .block-container {
-        padding-top: 2rem;
-        padding-bottom: 8rem;
-    }
-    
-    /* Auth Modal Styling */
-    .auth-container {
-        max-width: 400px;
-        margin: 0 auto;
-        padding: 2rem;
-        border: 1px solid #333;
-        border-radius: 10px;
-        background: #111;
-    }
-
-    /* 8. Mobile Responsiveness */
-    @media (max-width: 768px) {
-        .glass-card {
-            padding: 1.5rem;
-            margin-bottom: 1rem;
+# ================= SPLINE BACKGROUND =================
+def add_spline_background():
+    # Inject CSS to make background transparent and handle the iframe
+    st.markdown("""
+        <style>
+        /* Target all iframes that might be used for background */
+        iframe {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            border: none !important;
+            z-index: -1 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            pointer-events: none !important;
         }
         
-        .main-content {
-            padding-left: 1rem;
-            padding-right: 1rem;
+        /* Aggressive transparency reset for all Streamlit containers */
+        .stApp, .main, .block-container, 
+        [data-testid="stHeader"], 
+        [data-testid="stSidebar"], 
+        [data-testid="stToolbar"],
+        [data-testid="stBottom"],
+        [data-testid="stBottomBlockContainer"],
+        [data-testid="stVerticalBlock"],
+        [data-testid="stVerticalBlockBorderWrapper"],
+        .st-emotion-cache-18ni7ap,
+        .st-emotion-cache-zq5wmm,
+        .st-emotion-cache-176l82e,
+        .st-emotion-cache-1kyx60r {
+            background: transparent !important;
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
         }
         
-        .stChatInput {
-            max-width: 95%;
-            bottom: 1rem !important;
+        /* Glassmorphism for the main content area */
+        .main .block-container {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            backdrop-filter: blur(15px);
+            border-radius: 24px;
+            margin-top: 5rem !important;
+            margin-bottom: 10rem !important;
+            padding: 3rem !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            max-width: 900px !important;
+        }
+
+        /* Glassmorphism for the Chat Input */
+        [data-testid="stChatInput"] {
+            background-color: rgba(255, 255, 255, 0.07) !important;
+            backdrop-filter: blur(20px) !important;
+            border-radius: 15px !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            margin-bottom: 2rem !important;
         }
         
-        h1 { font-size: 2rem !important; }
-    }
-</style>
-""", unsafe_allow_html=True)
+        /* Ensure the bottom container doesn't block background */
+        [data-testid="stBottom"] > div {
+            background: transparent !important;
+        }
+        
+        /* Hide the specific component padding for background iframe */
+        [data-testid="stVerticalBlock"] > div:has(iframe) {
+            position: absolute !important;
+            height: 0 !important;
+            width: 0 !important;
+            overflow: hidden !important;
+        }
+        
+        /* Hide Streamlit elements */
+        footer {visibility: hidden;}
+        #MainMenu {visibility: hidden;}
+        header {visibility: hidden;}
+        </style>
+    """, unsafe_allow_html=True)
+
+    spline_html = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.72/build/spline-viewer.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: transparent;
+        }
+        spline-viewer {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+    </head>
+    <body style="background: transparent;">
+    <spline-viewer url="https://prod.spline.design/lGNzD2DC0ijG1K2C/scene.splinecode"></spline-viewer>
+    </body>
+    </html>
+    """
+    # Use 1px height to ensure it's kept in DOM, CSS handles the rest
+    components.html(spline_html, height=1)
+
+# Add background immediately
+add_spline_background()
 
 # --- Sidebar ---
 with st.sidebar:
@@ -234,8 +245,8 @@ with main_container:
     if not st.session_state.messages:
         st.markdown("""
             <div style="text-align: center; margin-bottom: 3rem; margin-top: 5rem;">
-                <h1 style="font-size: 3.5rem; font-weight: 800; background: -webkit-linear-gradient(#fff, #999); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Knowledge Portal</h1>
-                <p style="font-size: 1.2rem; color: #888;">Ask anything. Get a full course.</p>
+                <h1 style="font-size: 3.5rem; font-weight: 800; background: -webkit-linear-gradient(#fff, #999); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></h1>
+                <p style="font-size: 1.2rem; color: #888;"></p>
             </div>
         """, unsafe_allow_html=True)
 
