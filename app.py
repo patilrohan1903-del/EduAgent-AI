@@ -18,7 +18,46 @@ st.set_page_config(
     page_icon="📖",
     layout="wide",
     initial_sidebar_state="expanded",
+
 )
+
+# ================= SPLINE BACKGROUND =================
+def add_spline_background():
+    # Embed Spline Viewer using HTML component
+    # We use a script tag to load the viewer and the <spline-viewer> web component
+    spline_html = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.72/build/spline-viewer.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: transparent;
+        }
+        spline-viewer {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+    </head>
+    <body>
+    <spline-viewer url="https://prod.spline.design/lGNzD2DC0ijG1K2C/scene.splinecode"></spline-viewer>
+    </body>
+    </html>
+    """
+    # Render with 1px height, CSS will handle full-screen expansion
+    components.html(spline_html, height=100)
+
+# Add background immediately
+add_spline_background()
+
+import uuid
+
 
 # --- Session State Initialization ---
 if "logged_in" not in st.session_state:
@@ -32,115 +71,237 @@ if "messages" not in st.session_state:
 if "auth_mode" not in st.session_state:
     st.session_state.auth_mode = "Login" # Login, Signup, Forgot
 
-# ================= SPLINE BACKGROUND =================
-def add_spline_background():
-    # Inject CSS to make background transparent and handle the iframe
-    st.markdown("""
-        <style>
-        /* Target all iframes that might be used for background */
-        iframe {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            border: none !important;
-            z-index: -1 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            pointer-events: none !important;
-        }
-        
-        /* Aggressive transparency reset for all Streamlit containers */
-        .stApp, .main, .block-container, 
-        [data-testid="stHeader"], 
-        [data-testid="stSidebar"], 
-        [data-testid="stToolbar"],
-        [data-testid="stBottom"],
-        [data-testid="stBottomBlockContainer"],
-        [data-testid="stVerticalBlock"],
-        [data-testid="stVerticalBlockBorderWrapper"],
-        .st-emotion-cache-18ni7ap,
-        .st-emotion-cache-zq5wmm,
-        .st-emotion-cache-176l82e,
-        .st-emotion-cache-1kyx60r {
-            background: transparent !important;
-            background-color: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-        }
-        
-        /* Glassmorphism for the main content area */
-        .main .block-container {
-            background-color: rgba(255, 255, 255, 0.05) !important;
-            backdrop-filter: blur(15px);
-            border-radius: 24px;
-            margin-top: 5rem !important;
-            margin-bottom: 10rem !important;
-            padding: 3rem !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            max-width: 900px !important;
-        }
+# ================= CUSTOM CSS & JS INJECTION =================
+def inject_custom_style():
+    st.markdown(f"""
+    <style>
+    /* Hide Streamlit Default Elements (Footer, Menu, Header) */
+    #MainMenu {{visibility: hidden;}}
+    footer {{visibility: hidden;}}
+    [data-testid="stDecoration"] {{display: none;}}
+    
+    /* Hide specific deployment/github icons */
+    .stDeployButton {{display: none;}}
+    [data-testid="stToolbar"] {{
+        visibility: visible !important;
+        background-color: transparent !important;
+    }}
+    [data-testid="stHeader"] {{
+        visibility: visible !important;
+        background-color: transparent !important;
+    }}
+    .viewerBadge_container__1QSob {{display: none !important;}}
 
-        /* Glassmorphism for the Chat Input */
-        [data-testid="stChatInput"] {
-            background-color: rgba(255, 255, 255, 0.07) !important;
-            backdrop-filter: blur(20px) !important;
-            border-radius: 15px !important;
-            border: 1px solid rgba(255, 255, 255, 0.15) !important;
-            margin-bottom: 2rem !important;
-        }
-        
-        /* Ensure the bottom container doesn't block background */
-        [data-testid="stBottom"] > div {
-            background: transparent !important;
-        }
-        
-        /* Hide the specific component padding for background iframe */
-        [data-testid="stVerticalBlock"] > div:has(iframe) {
-            position: absolute !important;
-            height: 0 !important;
-            width: 0 !important;
-            overflow: hidden !important;
-        }
-        
-        /* Hide Streamlit elements */
-        footer {visibility: hidden;}
-        #MainMenu {visibility: hidden;}
-        header {visibility: hidden;}
-        </style>
+    /* FORCE VISIBILITY OF SIDEBAR TOGGLE - Natural Position */
+    [data-testid="stSidebarCollapsedControl"] {{
+        display: flex !important;
+        visibility: visible !important;
+        z-index: 1000000 !important;
+        color: white !important;
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        width: 44px !important;
+        height: 44px !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+        backdrop-filter: blur(5px) !important;
+        transition: all 0.3s ease !important;
+        cursor: pointer !important;
+        pointer-events: auto !important;
+        margin-top: 10px !important; 
+        margin-left: 10px !important;
+    }}
+    
+    [data-testid="stSidebarCollapsedControl"]:hover {{
+        background-color: rgba(255, 255, 255, 0.2) !important;
+        border-color: white !important;
+        transform: scale(1.05) !important;
+    }}
+    
+    /* Ensure the icon inside is visible */
+    [data-testid="stSidebarCollapsedControl"] svg {{
+        fill: white !important;
+        stroke: white !important;
+        width: 24px !important;
+        height: 24px !important;
+    }}
+
+    /* =========================================
+       FORCE TRANSPARENCY ON ALL STREAMLIT LAYERS
+       ========================================= */
+    
+    /* Force transparency on main containers */
+    .stApp, div[data-testid="stAppViewContainer"], div[data-testid="stAppViewBlockContainer"] {{
+        background-color: transparent !important;
+        background: transparent !important;
+    }}
+
+    html, body {{
+        background-color: #000000 !important;
+    }}
+
+    /* 3. Spline Background Iframe Styling */
+    iframe {{
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        z-index: -1 !important; 
+        border: none !important;
+        pointer-events: none !important;
+        display: block !important;
+        transform: scale(1.4) !important;
+        transform-origin: center center !important;
+    }}
+    
+    /* 4. The inner content block (centering constraint) */
+    .block-container {{
+        background-color: transparent !important;
+        padding-top: 2rem !important; /* Main content padding */
+        max-width: 1100px;
+    }}
+
+    /* 5. Sidebar transparency & Positioning */
+    /* 5. Sidebar transparency & Positioning */
+    section[data-testid="stSidebar"] {{
+        background-color: rgba(0, 0, 0, 0.1) !important; 
+        background: rgba(0, 0, 0, 0.1) !important;
+        backdrop-filter: blur(1px);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        z-index: 99999 !important;
+    }}
+
+    section[data-testid="stSidebar"] > div {{
+        background-color: transparent !important;
+        background: transparent !important;
+    }}
+
+    /* Force text color in sidebar */
+    section[data-testid="stSidebar"] * {{
+        color: white !important;
+    }}
+
+    /* Move sidebar content up */
+    section[data-testid="stSidebar"] div[data-testid="stVerticalBlock"] {{
+        padding-top: 1rem !important;
+        gap: 0.5rem !important;
+    }}
+    
+    /* 6. Bottom Container - FORCE TRANSPARENCY */
+    div[data-testid="stBottom"],
+    div[data-testid="stBottom"] > div {{
+        background-color: transparent !important;
+        background: transparent !important;
+        background-image: none !important;
+        box-shadow: none !important;
+        border: none !important;
+    }}
+    
+    div[data-testid="stChatInputContainer"] {{
+        background-color: transparent !important;
+    }}
+    
+    div[data-testid="stChatInput"] {{
+        background-color: transparent !important;
+    }}
+    
+    .stChatInput {{
+        background-color: transparent !important;
+    }}
+    
+    .stChatInput textarea {{
+        background-color: transparent !important;
+        color: #eeeeee !important;
+        caret-color: #ffffff !important;
+        border: 2px solid rgba(255, 255, 255, 0.2) !important;
+        border-radius: 24px !important;
+        padding: 14px 20px !important;
+        box-shadow: none !important;
+    }}
+    
+    .stChatInput textarea:focus {{
+        border-color: rgba(255, 255, 255, 0.6) !important;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.1) !important;
+    }}
+
+    /* =========================================
+       CHAT MESSAGE STYLING
+       ========================================= */
+    [data-testid="stChatMessage"] {{
+        background-color: rgba(0, 0, 0, 0.7) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 15px !important;
+        padding: 1.5rem !important;
+        margin-bottom: 1rem !important;
+        backdrop-filter: blur(10px) !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+    }}
+    
+    [data-testid="stChatMessage"] [data-testid="stMarkdownContainer"] p {{
+        font-size: 1.05rem !important;
+        line-height: 1.6 !important;
+    }}
+
+    /* =========================================
+       LOGIN PAGE STYLING (Dark Glassmorphism)
+       ========================================= */
+    [data-testid="stForm"] {{
+        background-color: rgba(0, 0, 0, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 20px !important;
+        padding: 3rem 2rem !important;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.5) !important;
+        backdrop-filter: blur(10px) !important;
+    }}
+    
+    [data-testid="stForm"] input {{
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        color: white !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }}
+    
+    [data-testid="stForm"] button {{
+        background-color: #ffffff !important;
+        color: black !important;
+        font-weight: bold !important;
+        border: none !important;
+        transition: all 0.3s ease !important;
+    }}
+    
+    [data-testid="stForm"] button:hover {{
+        transform: scale(1.02) !important;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.3) !important;
+    }}
+
+    /* =========================================
+       RESPONSIVE DESIGN ADAPTERS
+       ========================================= */
+    @media (max-width: 768px) {{
+        .sidebar-title {{
+            font-size: 1.5rem !important;
+            margin-top: -10px !important;
+        }}
+        div[data-testid="stAppViewBlockContainer"] {{
+            padding-top: 2rem !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }}
+        .stChatInput {{
+            bottom: 10px !important;
+        }}
+    }}
+    
+    @media (min-width: 769px) {{
+        .sidebar-title {{
+            font-size: 2.2rem !important;
+            margin-top: -20px !important;
+        }}
+    }}
+    </style>
     """, unsafe_allow_html=True)
 
-    spline_html = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.72/build/spline-viewer.js"></script>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            background: transparent;
-        }
-        spline-viewer {
-            width: 100%;
-            height: 100%;
-        }
-    </style>
-    </head>
-    <body style="background: transparent;">
-    <spline-viewer url="https://prod.spline.design/lGNzD2DC0ijG1K2C/scene.splinecode"></spline-viewer>
-    </body>
-    </html>
-    """
-    # Use 1px height to ensure it's kept in DOM, CSS handles the rest
-    components.html(spline_html, height=1)
-
-# Add background immediately
-add_spline_background()
+# Apply UI styles
+inject_custom_style()
 
 # --- Sidebar ---
 with st.sidebar:
@@ -261,12 +422,14 @@ with main_container:
 
         if isinstance(content, dict):
             # 1. Article
+            st.markdown("### 📚 Course Material")
             st.markdown(content.get('article', ''))
+            st.markdown("---")
             
             # 2. Videos
             videos = content.get('videos', [])
             if videos:
-                st.markdown("### 🎥 Related Videos")
+                st.markdown("### 🎥 Supplementary Videos")
                 cols = st.columns(min(3, len(videos)))
                 for i, vid in enumerate(videos):
                     with cols[i]:
