@@ -1,5 +1,5 @@
-# Use official Python image as a base (non-slim for better compatibility)
-FROM python:3.11
+# Use slim image to save disk space on AWS (critical!)
+FROM python:3.11-slim
 
 # Set working directory
 WORKDIR /app
