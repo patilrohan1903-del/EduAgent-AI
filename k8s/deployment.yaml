@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
       - name: eduagent-ai-container
-        image: ${{ secrets.DOCKERHUB_USERNAME }}/eduagent-ai:latest
+        image: eduagent-ai:latest
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8501
         env:
