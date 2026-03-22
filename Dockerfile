@@ -1,14 +1,12 @@
-# Use official Python image as a base
-FROM python:3.11-slim
+# Use official Python image as a base (non-slim for better compatibility)
+FROM python:3.11
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Install minimal system dependencies
 RUN apt-get update && apt-get install -y \
-    build-essential \
     curl \
-    software-properties-common \
     git \
     && rm -rf /var/lib/apt/lists/*
 
