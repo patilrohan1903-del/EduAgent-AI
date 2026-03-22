@@ -131,3 +131,6 @@ The app is designed to be **fully responsive**.
 
 ---
 *Built with ❤️ by EduAgent Team*
+
+
+tere maaa kiii jay hoooo 
