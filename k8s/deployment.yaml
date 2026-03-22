@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eduagent-ai-deployment
+  labels:
+    app: eduagent-ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eduagent-ai
+  template:
+    metadata:
+      labels:
+        app: eduagent-ai
+    spec:
+      containers:
+      - name: eduagent-ai-container
+        image: ${{ secrets.DOCKERHUB_USERNAME }}/eduagent-ai:latest
+        ports:
+        - containerPort: 8501
+        env:
+        - name: GROQ_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: eduagent-secrets
+              key: GROQ_API_KEY
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: eduagent-secrets
+              key: MONGO_URI
+        - name: MONGO_DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: eduagent-secrets
+              key: MONGO_DB_NAME
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eduagent-ai-service
+spec:
+  selector:
+    app: eduagent-ai
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8501
+  type: LoadBalancer

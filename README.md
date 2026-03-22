@@ -82,8 +82,45 @@ To make this website live on the internet, you can use **Streamlit Cloud** (Easi
 ### Option 2: Render / Railway
 If you deploy on a custom server, use these commands:
 
-*   **Build Command:** `pip install -r requirements.txt`
 *   **Start Command:** `streamlit run app.py --server.port $PORT --server.address 0.0.0.0`
+
+---
+
+## 🐳 Docker & Kubernetes Deployment
+
+We provide a production-ready setup for Docker and Kubernetes to deploy on AWS or any cloud provider.
+
+### 1. Docker
+Build the image locally:
+```bash
+docker build -t eduagent-ai .
+```
+Run the container:
+```bash
+docker run -p 8501:8501 --env-file .env eduagent-ai
+```
+
+### 2. Kubernetes
+Deploy to your cluster:
+```bash
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+```
+> [!IMPORTANT]
+> Ensure you create your secrets first! See `k8s/secrets.yaml.example` for details.
+
+### 3. GitHub Actions (CI/CD)
+The project includes a `deploy.yml` workflow. To use it:
+1.  Go to your GitHub Repository -> **Settings** -> **Secrets and variables** -> **Actions**.
+2.  Add the following secrets:
+    - `DOCKERHUB_USERNAME`: Your Docker Hub username.
+    - `DOCKERHUB_TOKEN`: Your Docker Hub personal access token.
+    - `KUBECONFIG`: The contents of your `~/.kube/config` file.
+    - `GROQ_API_KEY`: Your API key.
+    - `MONGO_URI`: Your MongoDB connection string.
+    - `MONGO_DB_NAME`: Your MongoDB database name.
+
+---
 
 ---
 
